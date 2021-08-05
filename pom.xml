@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>software.plusminus</groupId>
+    <artifactId>plusminus-inject</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>Plusminus Inject</name>
+    <description>Auto-injection functionality for Spring beans.</description>
+    <url>https://github.com/plusminus-software/plusminus-inject</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Taras Shpek</name>
+            <email>taras.shpek@gmail.com</email>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Kyiv</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/plusminus-software/plusminus-inject.git</connection>
+        <developerConnection>scm:git:ssh://github.com:plusminus-software/plusminus-inject.git</developerConnection>
+        <url>https://github.com/plusminus-software/plusminus-inject/tree/main</url>
+    </scm>
+    
+    <parent>
+        <groupId>software.plusminus</groupId>
+        <artifactId>plusminus-opensource</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.plusminus</groupId>
+            <artifactId>plusminus-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- Test -->
+        <dependency>
+            <groupId>software.plusminus</groupId>
+            <artifactId>plusminus-test</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

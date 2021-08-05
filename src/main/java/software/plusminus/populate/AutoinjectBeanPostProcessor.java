@@ -1,0 +1,62 @@
+/*
+ * Copyright 2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package software.plusminus.populate;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.DependencyDescriptor;
+import org.springframework.core.ResolvableType;
+import org.springframework.stereotype.Component;
+import software.plusminus.util.FieldUtils;
+import software.plusminus.util.ObjectUtils;
+
+import java.lang.reflect.Field;
+import javax.annotation.Nullable;
+
+@Component
+public class AutoinjectBeanPostProcessor implements BeanPostProcessor {
+
+    private ConfigurableListableBeanFactory beanFactory;
+
+    public AutoinjectBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        FieldUtils.getFieldsStream(bean.getClass())
+                .filter(field -> !ObjectUtils.isJvmClass(field.getType()))
+                .filter(field -> FieldUtils.read(bean, field) == null)
+                .forEach(field -> processField(bean, beanName, field));
+        return bean;
+    }
+    
+    private void processField(Object bean, String beanName, Field field) {
+        boolean nullable = field.isAnnotationPresent(org.springframework.lang.Nullable.class)
+                || field.isAnnotationPresent(Nullable.class);
+        DependencyDescriptor desc = new DependencyDescriptor(field, !nullable);
+        desc.setContainingClass(bean.getClass());
+        Object injectCandidate = beanFactory.resolveDependency(desc, beanName, null, beanFactory.getTypeConverter());
+        if (injectCandidate != null) {
+            FieldUtils.write(bean, injectCandidate, field);
+        } else {
+            throw new NoUniqueBeanDefinitionException(ResolvableType.forField(field));
+        }
+    }
+}
