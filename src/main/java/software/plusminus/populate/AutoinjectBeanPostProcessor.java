@@ -17,6 +17,8 @@ package software.plusminus.populate;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
@@ -42,6 +44,8 @@ public class AutoinjectBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         FieldUtils.getFieldsStream(bean.getClass())
                 .filter(field -> !ObjectUtils.isJvmClass(field.getType()))
+                .filter(field -> !field.isAnnotationPresent(Autowired.class))
+                .filter(field -> !field.isAnnotationPresent(Value.class))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
         return bean;
