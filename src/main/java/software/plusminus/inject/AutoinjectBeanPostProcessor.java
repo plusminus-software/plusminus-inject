@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package software.plusminus.populate;
+package software.plusminus.inject;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
