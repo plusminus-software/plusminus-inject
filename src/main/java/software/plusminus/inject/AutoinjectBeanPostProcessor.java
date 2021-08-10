@@ -24,8 +24,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
+import software.plusminus.util.ClassUtils;
 import software.plusminus.util.FieldUtils;
-import software.plusminus.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class AutoinjectBeanPostProcessor implements BeanPostProcessor {
     @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         FieldUtils.getFieldsStream(bean.getClass())
-                .filter(field -> !ObjectUtils.isJvmClass(field.getType()))
+                .filter(field -> !ClassUtils.isJvmClass(field.getType()))
                 .filter(field -> !field.isAnnotationPresent(Autowired.class))
                 .filter(field -> !field.isAnnotationPresent(Value.class))
                 .filter(field -> FieldUtils.read(bean, field) == null)
