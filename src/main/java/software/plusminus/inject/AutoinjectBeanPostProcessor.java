@@ -23,11 +23,13 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import software.plusminus.util.ClassUtils;
 import software.plusminus.util.FieldUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import javax.annotation.Nullable;
 
 @Component
@@ -42,10 +44,15 @@ public class AutoinjectBeanPostProcessor implements BeanPostProcessor {
     @Override
     @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (AnnotationUtils.findAnnotation(bean.getClass(), Component.class) == null) {
+            return bean;
+        }
         FieldUtils.getFieldsStream(bean.getClass())
-                .filter(field -> !ClassUtils.isJvmClass(field.getType()))
+                .filter(field -> !Modifier.isFinal(field.getModifiers()))
                 .filter(field -> !field.isAnnotationPresent(Autowired.class))
                 .filter(field -> !field.isAnnotationPresent(Value.class))
+                .filter(field -> field.getType().getPackage() != null)
+                .filter(field -> !ClassUtils.isJvmClass(field.getType()))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
         return bean;
