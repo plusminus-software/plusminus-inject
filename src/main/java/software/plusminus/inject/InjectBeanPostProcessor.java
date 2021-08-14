@@ -33,11 +33,11 @@ import java.lang.reflect.Modifier;
 import javax.annotation.Nullable;
 
 @Component
-public class AutoinjectBeanPostProcessor implements BeanPostProcessor {
+public class InjectBeanPostProcessor implements BeanPostProcessor {
 
     private ConfigurableListableBeanFactory beanFactory;
 
-    public AutoinjectBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+    public InjectBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
