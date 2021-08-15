@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-software.plusminus.inject.InjectAutoConfiguration
+software.plusminus.inject.InjectConfig
