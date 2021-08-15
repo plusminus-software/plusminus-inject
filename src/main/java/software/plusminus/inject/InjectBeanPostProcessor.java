@@ -53,6 +53,7 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
                 .filter(field -> !field.isAnnotationPresent(Value.class))
                 .filter(field -> field.getType().getPackage() != null)
                 .filter(field -> !ClassUtils.isJvmClass(field.getType()))
+                .filter(field -> !field.getType().getPackage().getName().startsWith("org.springframework"))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
         return bean;
