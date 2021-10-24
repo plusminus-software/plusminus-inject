@@ -44,7 +44,8 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     @Override
     @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (AnnotationUtils.findAnnotation(bean.getClass(), Component.class) == null) {
+        if (AnnotationUtils.findAnnotation(bean.getClass(), Component.class) == null
+                || bean.getClass().getPackage().getName().startsWith("org.springframework")) {
             return bean;
         }
         FieldUtils.getFieldsStream(bean.getClass())
@@ -53,7 +54,6 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
                 .filter(field -> !field.isAnnotationPresent(Value.class))
                 .filter(field -> field.getType().getPackage() != null)
                 .filter(field -> !ClassUtils.isJvmClass(field.getType()))
-                .filter(field -> !field.getType().getPackage().getName().startsWith("org.springframework"))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
         return bean;
