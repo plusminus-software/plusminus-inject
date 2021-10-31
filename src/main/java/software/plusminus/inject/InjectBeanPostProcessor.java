@@ -24,6 +24,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Component;
 import software.plusminus.util.ClassUtils;
 import software.plusminus.util.FieldUtils;
@@ -45,6 +46,7 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (AnnotationUtils.findAnnotation(bean.getClass(), Component.class) == null
+                || isConfigurationProperties(bean)
                 || bean.getClass().getPackage().getName().startsWith("org.springframework")) {
             return bean;
         }
@@ -70,5 +72,10 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
         } else {
             throw new NoUniqueBeanDefinitionException(ResolvableType.forField(field));
         }
+    }
+    
+    private boolean isConfigurationProperties(Object bean) {
+        return MergedAnnotations.from(bean.getClass(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+                .isPresent("org.springframework.boot.context.properties.ConfigurationProperties");
     }
 }
