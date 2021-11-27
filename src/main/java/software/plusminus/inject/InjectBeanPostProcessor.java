@@ -31,6 +31,7 @@ import software.plusminus.util.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import javax.annotation.Nullable;
 
 @Component
@@ -47,7 +48,7 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (AnnotationUtils.findAnnotation(bean.getClass(), Component.class) == null
                 || isConfigurationProperties(bean)
-                || bean.getClass().getPackage().getName().startsWith("org.springframework")) {
+                || isSpringClass(bean)) {
             return bean;
         }
         FieldUtils.getFieldsStream(bean.getClass())
@@ -77,5 +78,19 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     private boolean isConfigurationProperties(Object bean) {
         return MergedAnnotations.from(bean.getClass(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
                 .isPresent("org.springframework.boot.context.properties.ConfigurationProperties");
+    }
+    
+    private boolean isSpringClass(Object bean) {
+        String packageName;
+        if (Proxy.isProxyClass(bean.getClass())) {
+            Class<?>[] interfaces = bean.getClass().getInterfaces();
+            if (interfaces.length == 0) {
+                return false;
+            }
+            packageName = interfaces[0].getPackage().getName();
+        } else {
+            packageName = bean.getClass().getPackage().getName();
+        }
+        return packageName.startsWith("org.springframework");
     }
 }
