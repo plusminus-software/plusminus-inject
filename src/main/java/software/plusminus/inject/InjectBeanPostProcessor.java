@@ -15,6 +15,8 @@
  */
 package software.plusminus.inject;
 
+import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +70,14 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
         DependencyDescriptor desc = new DependencyDescriptor(field, !nullable);
         desc.setContainingClass(bean.getClass());
         Object injectCandidate = beanFactory.resolveDependency(desc, beanName, null, beanFactory.getTypeConverter());
-        if (injectCandidate != null) {
-            FieldUtils.write(bean, injectCandidate, field);
-        } else {
+        if (injectCandidate == null) {
             throw new NoUniqueBeanDefinitionException(ResolvableType.forField(field));
         }
+        if (AopUtils.isCglibProxy(bean)) {
+            Object unproxied = AopProxyUtils.getSingletonTarget(bean);
+            FieldUtils.write(unproxied, injectCandidate, field);
+        }
+        FieldUtils.write(bean, injectCandidate, field);
     }
     
     private boolean isConfigurationProperties(Object bean) {
