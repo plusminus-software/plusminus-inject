@@ -27,17 +27,16 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     private InjectService service;
 
     public InjectBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
-        this.filter = new InjectFilter();
-        this.service = new InjectService(beanFactory);
+        this.filter = new InjectFilter(beanFactory);
+        this.service = new InjectService(beanFactory, this.filter);
     }
 
     @Override
     @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (!filter.shouldBeProcessed(bean)) {
-            return bean;
+        if (filter.shouldBeProcessed(bean)) {
+            service.injectFields(bean, beanName);
         }
-        service.injectFields(bean, beanName);
         return bean;
     }
 }

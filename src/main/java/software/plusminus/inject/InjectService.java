@@ -18,9 +18,11 @@ import javax.annotation.Nullable;
 class InjectService {
 
     private ConfigurableListableBeanFactory beanFactory;
+    private InjectFilter filter;
 
-    InjectService(ConfigurableListableBeanFactory beanFactory) {
+    InjectService(ConfigurableListableBeanFactory beanFactory, InjectFilter filter) {
         this.beanFactory = beanFactory;
+        this.filter = filter;
     }
 
     void injectFields(Object bean, String beanName) {
@@ -28,8 +30,11 @@ class InjectService {
                 .filter(field -> !Modifier.isFinal(field.getModifiers()))
                 .filter(field -> !field.isAnnotationPresent(Autowired.class))
                 .filter(field -> !field.isAnnotationPresent(Value.class))
+                .filter(field -> !field.isAnnotationPresent(NoInject.class))
+                .filter(field -> !field.getDeclaringClass().isAnnotationPresent(NoInject.class))
                 .filter(field -> field.getType().getPackage() != null)
-                .filter(field -> !ClassUtils.isJvmClass(field.getType()))
+                .filter(field -> !ClassUtils.isJavaClass(field.getType()))
+                .filter(field -> filter.isAutoInjectable(field.getDeclaringClass()))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
     }
