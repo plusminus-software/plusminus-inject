@@ -13,6 +13,7 @@ import software.plusminus.util.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import javax.annotation.Nullable;
 
 class InjectService {
@@ -33,7 +34,8 @@ class InjectService {
                 .filter(field -> !field.isAnnotationPresent(NoInject.class))
                 .filter(field -> !field.getDeclaringClass().isAnnotationPresent(NoInject.class))
                 .filter(field -> field.getType().getPackage() != null)
-                .filter(field -> !ClassUtils.isJavaClass(field.getType()))
+                .filter(field -> !ClassUtils.isJavaClass(field.getType()) 
+                        || Collection.class.isAssignableFrom(field.getType()))
                 .filter(field -> filter.isAutoInjectable(field.getDeclaringClass()))
                 .filter(field -> FieldUtils.read(bean, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
