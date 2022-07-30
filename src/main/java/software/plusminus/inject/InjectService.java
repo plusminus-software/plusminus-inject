@@ -2,15 +2,18 @@ package software.plusminus.inject;
 
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.ResolvableType;
+import software.plusminus.util.AnnotationUtils;
 import software.plusminus.util.ClassUtils;
 import software.plusminus.util.FieldUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -46,7 +49,15 @@ class InjectService {
                 || field.isAnnotationPresent(Nullable.class);
         DependencyDescriptor desc = new DependencyDescriptor(field, !nullable);
         desc.setContainingClass(bean.getClass());
-        Object injectCandidate = beanFactory.resolveDependency(desc, beanName, null, beanFactory.getTypeConverter());
+        Object injectCandidate;
+        try { 
+            injectCandidate = beanFactory.resolveDependency(desc, beanName, null, beanFactory.getTypeConverter());
+        } catch (BeansException e) {
+            if (isTestClass(field)) {
+                return;
+            }
+            throw e;
+        }
         if (injectCandidate == null) {
             throw new NoUniqueBeanDefinitionException(ResolvableType.forField(field));
         }
@@ -55,6 +66,11 @@ class InjectService {
             FieldUtils.write(unproxied, injectCandidate, field);
         }
         FieldUtils.write(bean, injectCandidate, field);
+    }
+    
+    private boolean isTestClass(Field field) {
+        Annotation annotation = AnnotationUtils.findAnnotation("org.junit.runner.RunWith", field.getDeclaringClass());
+        return annotation != null;
     }
     
 }
