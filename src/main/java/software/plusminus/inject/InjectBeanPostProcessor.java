@@ -19,6 +19,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.stereotype.Component;
+import software.plusminus.util.AnnotationUtils;
+import software.plusminus.util.MethodUtils;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class InjectBeanPostProcessor implements BeanPostProcessor {
@@ -29,6 +33,19 @@ public class InjectBeanPostProcessor implements BeanPostProcessor {
     public InjectBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
         this.filter = new InjectFilter(beanFactory);
         this.service = new InjectService(beanFactory, this.filter);
+    }
+
+    @Override
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (filter.shouldBeProcessed(bean)) {
+            boolean mustInitializeNow = MethodUtils.getMethodsStream(bean.getClass())
+                    .anyMatch(method -> AnnotationUtils.findAnnotation(PostConstruct.class, method) != null);
+            if (mustInitializeNow) {
+                service.injectFields(bean, beanName);
+            }
+        }
+        return bean;
     }
 
     @Override
