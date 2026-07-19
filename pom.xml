@@ -4,7 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>software.plusminus</groupId>
+    <parent>
+        <groupId>software.plusminus</groupId>
+        <artifactId>plusminus-parent</artifactId>
+        <version>1.7</version>
+        <relativePath/>
+    </parent>
+
     <artifactId>plusminus-inject</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -12,6 +18,19 @@
     <description>Auto-injection functionality for Spring beans.</description>
     <url>https://github.com/plusminus-software/plusminus-inject</url>
 
+    <scm>
+        <connection>scm:git:git://github.com/plusminus-software/plusminus-inject.git</connection>
+        <developerConnection>scm:git:ssh://github.com:plusminus-software/plusminus-inject.git</developerConnection>
+        <url>https://github.com/plusminus-software/plusminus-inject/tree/main</url>
+    </scm>
+    <issueManagement>
+        <system>Github Issues</system>
+        <url>https://github.com/plusminus-software/plusminus-inject/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Github Actions</system>
+        <url>https://github.com/plusminus-software/plusminus-inject/actions</url>
+    </ciManagement>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -19,7 +38,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <name>Taras Shpek</name>
@@ -31,19 +49,6 @@
             <timezone>Europe/Kyiv</timezone>
         </developer>
     </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/plusminus-software/plusminus-inject.git</connection>
-        <developerConnection>scm:git:ssh://github.com:plusminus-software/plusminus-inject.git</developerConnection>
-        <url>https://github.com/plusminus-software/plusminus-inject/tree/main</url>
-    </scm>
-    
-    <parent>
-        <groupId>software.plusminus</groupId>
-        <artifactId>plusminus-opensource</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <relativePath/>
-    </parent>
 
     <dependencies>
         <dependency>
@@ -67,5 +72,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

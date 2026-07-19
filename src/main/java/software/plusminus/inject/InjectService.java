@@ -30,18 +30,27 @@ class InjectService {
     }
 
     void injectFields(Object bean, String beanName) {
-        FieldUtils.getFieldsStream(bean.getClass())
+        Object target = unwrapProxy(bean);
+        FieldUtils.getFieldsStream(target.getClass())
                 .filter(field -> !Modifier.isFinal(field.getModifiers()))
                 .filter(field -> !field.isAnnotationPresent(Autowired.class))
                 .filter(field -> !field.isAnnotationPresent(Value.class))
                 .filter(field -> !field.isAnnotationPresent(NoInject.class))
                 .filter(field -> !field.getDeclaringClass().isAnnotationPresent(NoInject.class))
                 .filter(field -> field.getType().getPackage() != null)
-                .filter(field -> !ClassUtils.isJavaClass(field.getType()) 
+                .filter(field -> !ClassUtils.isJavaClass(field.getType())
                         || Collection.class.isAssignableFrom(field.getType()))
                 .filter(field -> filter.isAutoInjectable(field.getDeclaringClass()))
-                .filter(field -> FieldUtils.read(bean, field) == null)
+                .filter(field -> FieldUtils.read(target, field) == null)
                 .forEach(field -> processField(bean, beanName, field));
+    }
+
+    private Object unwrapProxy(Object bean) {
+        if (!AopUtils.isAopProxy(bean)) {
+            return bean;
+        }
+        Object target = AopProxyUtils.getSingletonTarget(bean);
+        return target == null ? bean : target;
     }
 
     private void processField(Object bean, String beanName, Field field) {
@@ -59,13 +68,16 @@ class InjectService {
             throw e;
         }
         if (injectCandidate == null) {
+            if (nullable) {
+                return;
+            }
             throw new NoUniqueBeanDefinitionException(ResolvableType.forField(field));
         }
-        if (AopUtils.isCglibProxy(bean)) {
-            Object unproxied = AopProxyUtils.getSingletonTarget(bean);
-            FieldUtils.write(unproxied, injectCandidate, field);
+        Object target = AopUtils.isAopProxy(bean) ? AopProxyUtils.getSingletonTarget(bean) : bean;
+        if (target == null) {
+            target = bean;
         }
-        FieldUtils.write(bean, injectCandidate, field);
+        FieldUtils.write(target, injectCandidate, field);
     }
     
     private boolean isTestClass(Field field) {

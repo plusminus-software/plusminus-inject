@@ -1,5 +1,6 @@
 package software.plusminus.inject;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -23,10 +24,11 @@ class InjectFilter {
     }
 
     boolean shouldBeProcessed(Object bean) {
+        Class<?> targetClass = AopUtils.getTargetClass(bean);
         return !include.isEmpty()
-                && isAutoInjectable(bean.getClass())
+                && isAutoInjectable(targetClass)
                 && !isConfigurationProperties(bean)
-                && !ClassUtils.isJavaClass(bean.getClass());
+                && !ClassUtils.isJavaClass(targetClass);
     }
     
     boolean isAutoInjectable(Class<?> c) {
