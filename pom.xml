@@ -56,20 +56,9 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-utils</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <!-- Test -->
-        <dependency>
-            <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
